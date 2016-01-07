@@ -10,6 +10,7 @@ import mikolaj.torrent.actions.ActionAbstract;
 import mikolaj.torrent.actions.Result;
 import mikolaj.torrent.communication.Client;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 
 import java.util.HashMap;
 
@@ -34,10 +35,13 @@ public class Shares extends ActionAbstract {
 
         Client client = new Client(host, 10101);
 
-        JSONArray jsonArray = new Result().fromJson(client.sendMessage(this.getName()));
+        JSONArray jsonArray = new Result().fromJsonArray(client.sendMessage(this.getName()));
+
+        System.out.println(String.format("Shared files of %s:", host));
 
         for (Object file : jsonArray) {
-            System.out.println(String.format("    %s", file.toString()));
+            JSONObject fileObject = (JSONObject) file;
+            System.out.println(String.format("     %s (checksum %s)", fileObject.get("fileName"), fileObject.get("checkSum")));
         }
 
         return new Result();
