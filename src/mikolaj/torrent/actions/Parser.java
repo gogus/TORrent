@@ -57,18 +57,45 @@ public class Parser {
         return populatedParameters;
     }
 
-    public Result perform() {
-        String action = arguments;
+    private HashMap<String, String> parameterParseViaTraditional(HashMap<String, Boolean> paramsMap, String cliRaw) {
+        HashMap<String, String> populatedParameters = new HashMap<String, String>();
 
-        HashMap<String, Boolean> paramsMap = actionService.getAction(action).getParams();
+        String allCli[] = cliRaw.split("\\s+");
+
+        for (int i = 1; i <= allCli.length - 1; i++) {
+            String argument[] = allCli[i].split("=");
+            populatedParameters.put(argument[0], argument[1]);
+        }
+
+        return populatedParameters;
+    }
+
+    private String getMainAction(String arguments) {
+        switch (this.parameterParserType) {
+            case PARAMETER_PARSER_SCANNER:
+                return arguments;
+            case PARAMETER_PARSER_TRADITIONAL:
+                return arguments.split("\\s+")[0];
+        }
+
+        return null;
+    }
+
+    public Result perform() {
+        HashMap<String, Boolean> paramsMap = actionService.getAction(getMainAction(arguments)).getParams();
         HashMap<String, String> paramsValues = null;
 
-        if (actionService.getAction(action).getParams() != null) {
-            if (this.parameterParserType.equals(PARAMETER_PARSER_SCANNER)) {
-                paramsValues = this.parameterParseViaScanner(paramsMap);
+        if (paramsMap != null) {
+            switch (this.parameterParserType) {
+                case PARAMETER_PARSER_SCANNER:
+                    paramsValues = this.parameterParseViaScanner(paramsMap);
+                    break;
+                case PARAMETER_PARSER_TRADITIONAL:
+                    paramsValues = this.parameterParseViaTraditional(paramsMap, arguments);
+                    break;
             }
         }
 
-        return actionService.getAction(action).perform(paramsValues);
+        return actionService.getAction(getMainAction(arguments)).perform(paramsValues);
     }
 }

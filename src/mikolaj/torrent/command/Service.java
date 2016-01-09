@@ -10,6 +10,7 @@ import mikolaj.torrent.Bootstrap;
 import mikolaj.torrent.actions.ActionAbstract;
 import mikolaj.torrent.actions.ActionService;
 import mikolaj.torrent.command.actions.Clients;
+import mikolaj.torrent.command.actions.Pull;
 import mikolaj.torrent.command.actions.Shares;
 
 import java.util.ArrayList;
@@ -22,6 +23,7 @@ public class Service extends ActionService {
 
         commandsList.add(new Clients());
         commandsList.add(new Shares());
+        commandsList.add(new Pull());
 
         return commandsList;
     }

@@ -9,24 +9,22 @@ package mikolaj.torrent.communication.server;
 import mikolaj.torrent.actions.Parser;
 import mikolaj.torrent.actions.Result;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class Bootstrap {
-    private int port;
+    public static final String SERVER_RETURN_STRING = "returnString";
+    public static final String SERVER_RETURN_BYTE = "returnByte";
+
+    private int port = 10101;
     private String shareDirectory;
 
-    public Bootstrap(int port, String shareDirectory) {
-        this.port = port;
+    public Bootstrap(String shareDirectory) {
         this.shareDirectory = shareDirectory;
         Service.getInstance().setServer(this);
-        this.start();
     }
 
     public void start() {
@@ -67,12 +65,56 @@ public class Bootstrap {
 
                 Result result = new Parser(command, Service.getInstance(), Parser.PARAMETER_PARSER_TRADITIONAL).perform();
 
-                PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
-                outToClient.print(result.getData());
-                outToClient.flush();
+                switch (result.getServerReturnType()) {
+                    case Bootstrap.SERVER_RETURN_STRING:
+                        stringSend(result);
+                        break;
+                    case Bootstrap.SERVER_RETURN_BYTE:
+                        byteSend(result);
+                        break;
+                }
+
                 clientSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
+            }
+        }
+
+        private void stringSend(Result result) {
+            try {
+                PrintWriter outToClient = new PrintWriter(clientSocket.getOutputStream(), true);
+                outToClient.print(result.getData());
+                outToClient.flush();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        private void byteSend(Result result) {
+            try {
+                BufferedOutputStream outToClient = new BufferedOutputStream(clientSocket.getOutputStream());
+
+                File file = new File(Service.getInstance().getServer().getShareDirectory() + "/" + result.getData().toString().replace("__", " "));
+                byte[] byteArray = new byte[(int) file.length()];
+
+                FileInputStream fis;
+
+                try {
+                    fis = new FileInputStream(file);
+
+                    BufferedInputStream bis = new BufferedInputStream(fis);
+                    bis.read(byteArray, 0, byteArray.length);
+                    outToClient.write(byteArray, 0, byteArray.length);
+                } catch (FileNotFoundException ex) {
+                    ex.printStackTrace();
+                }
+
+                outToClient.flush();
+                outToClient.close();
+
+                clientSocket.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
             }
         }
     }
@@ -83,5 +125,9 @@ public class Bootstrap {
 
     public int getPort() {
         return port;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 }

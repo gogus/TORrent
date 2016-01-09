@@ -18,7 +18,6 @@ abstract public class ActionAbstract {
 
     /**
      * Get description of the command
-     * Is useful for example: print help message
      *
      * @return String
      */
@@ -35,6 +34,8 @@ abstract public class ActionAbstract {
 
     /**
      * Perform an action from command
+     *
+     * @return Result
      */
     abstract public Result perform(HashMap<String, String> paramsMap);
 }

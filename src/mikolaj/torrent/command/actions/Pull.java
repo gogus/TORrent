@@ -2,29 +2,48 @@
  * TORrent
  *
  * @copyright Copyright (c) 2016 Mikołaj Goguła
- * @license Proprietary License
+ * @license   Proprietary License
  */
 package mikolaj.torrent.command.actions;
 
 import mikolaj.torrent.actions.ActionAbstract;
 import mikolaj.torrent.actions.Result;
+import mikolaj.torrent.communication.Client;
+import mikolaj.torrent.communication.server.Service;
 
 import java.util.HashMap;
 
 public class Pull extends ActionAbstract {
     public String getName() {
-        return null;
+        return "pull";
     }
 
     public String getDescription() {
-        return null;
+        return "Pull file from user.";
     }
 
     public HashMap<String, Boolean> getParams() {
-        return null;
+        HashMap<String, Boolean> params = new HashMap<>();
+
+        params.put("host", true);
+        params.put("fileName", true);
+
+        return params;
     }
 
     public Result perform(HashMap<String, String> paramsMap) {
+        String host = paramsMap.get("host");
+
+        Client client = new Client(host, Service.getInstance().getServer().getPort(), Client.SERVER_PULL_BYTE);
+
+        client.sendMessage(
+            String.format("%s %s=%s",
+                    new mikolaj.torrent.communication.server.actions.Push().getName(),
+                    "fileName",
+                    paramsMap.get("fileName")
+            )
+        );
+
         return new Result();
     }
 }

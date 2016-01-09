@@ -17,11 +17,26 @@ public class Bootstrap {
 
     private static void runCommunicationPackage() {
         try {
-            new mikolaj.torrent.communication.server.Bootstrap(10101, System.getProperty("user.home"));
+            new mikolaj.torrent.communication.server.Bootstrap(System.getProperty("user.home")).start();
         } catch (Exception ex) {
             System.out.println("* ERROR *");
             System.out.println("Error with starting the communication server.");
             System.out.println("Please check that port 10101 is free or if you have permission to run the app.");
+            System.exit(1);
+        }
+    }
+
+    private static void runCommunicationPackage(int port) {
+        try {
+            mikolaj.torrent.communication.server.Bootstrap communicationBootstrap = new mikolaj.torrent.communication.server.Bootstrap(System.getProperty("user.home"));
+            communicationBootstrap.setPort(port);
+            communicationBootstrap.start();
+        } catch (Exception ex) {
+            System.out.println("* ERROR *");
+            System.out.println("Error with starting the communication server.");
+            System.out.println(
+                    String.format("Please check that port %s is free or if you have permission to run the app.", port)
+            );
             System.exit(1);
         }
     }

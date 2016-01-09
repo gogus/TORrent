@@ -9,6 +9,7 @@ package mikolaj.torrent.command.actions;
 import mikolaj.torrent.actions.ActionAbstract;
 import mikolaj.torrent.actions.Result;
 import mikolaj.torrent.communication.Client;
+import mikolaj.torrent.communication.server.Service;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -20,7 +21,7 @@ public class Shares extends ActionAbstract {
     }
 
     public String getDescription() {
-        return "Get shares of user";
+        return "Get shares of user.";
     }
 
     public HashMap<String, Boolean> getParams() {
@@ -33,7 +34,7 @@ public class Shares extends ActionAbstract {
     public Result perform(HashMap<String, String> paramsMap) {
         String host = paramsMap.get("host");
 
-        Client client = new Client(host, 10101);
+        Client client = new Client(host, Service.getInstance().getServer().getPort(), Client.SERVER_PULL_STRING);
 
         JSONArray jsonArray = new Result().fromJsonArray(client.sendMessage(this.getName()));
 
