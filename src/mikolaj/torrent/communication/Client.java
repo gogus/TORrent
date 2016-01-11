@@ -1,11 +1,10 @@
 package mikolaj.torrent.communication;
 
+import mikolaj.torrent.actions.Result;
 import mikolaj.torrent.communication.server.Service;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Client {
     public static final String SERVER_PULL_STRING = "pullString";
@@ -14,6 +13,7 @@ public class Client {
     private String host;
     private int port;
     private String pullType;
+    private Result result = null;
 
     public Client(String host, int port, String pullType) {
         this.host = host;
@@ -21,95 +21,81 @@ public class Client {
         this.pullType = pullType;
     }
 
+    public void setResult(Result result) {
+        this.result = result;
+    }
+
     public String sendMessage(String message) {
         return this.start(message);
     }
 
     public String start(String message) {
-//        final ExecutorService clientProcessingPool = Executors.newFixedThreadPool(10);
-
         try {
             Socket clientSocket = new Socket(host, port);
-            return new ClientTask(clientSocket, message, pullType).run();
+            return new ClientTask(clientSocket, message, pullType, result).run();
         } catch (IOException e) {
             System.err.println("Unable to process client request");
             e.printStackTrace();
         }
 
         return null;
-
-//        Runnable serverTask = new Runnable() {
-//            @Override
-//            public void run() {
-//                try {
-//                    Socket clientSocket = new Socket(host, port);
-//                    clientProcessingPool.submit(new ClientTask(clientSocket, message));
-//                } catch (IOException e) {
-//                    System.err.println("Unable to process client request");
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-//        Thread serverThread = new Thread(serverTask);
-//        serverThread.start();
     }
 
     private class ClientTask {
         private final Socket clientSocket;
         private final String message;
         private final String pullType;
+        private final Result result;
 
-        private ClientTask(Socket clientSocket, String message, String pullType) {
+        private ClientTask(Socket clientSocket, String message, String pullType, Result result) {
             this.clientSocket = clientSocket;
             this.message = message;
             this.pullType = pullType;
+            this.result = result;
         }
 
         public String run() {
             String output = null;
 
             try {
+                DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
+                outToServer.writeBytes(message + '\n');
+
                 switch (pullType) {
                     case Client.SERVER_PULL_BYTE:
-                        try {
-                            byte[] aByte = new byte[1];
-                            int bytesRead;
+                        byte[] contents = new byte[10000];
+                        int bytesRead;
 
-                            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
-                            FileOutputStream fos;
-                            BufferedOutputStream bos;
+                        String dir = Service.getInstance().getServer().getShareDirectory() + "/_" + result.getData();
 
-                            fos = new FileOutputStream(Service.getInstance().getServer().getShareDirectory() + "/test.txt");
-                            bos = new BufferedOutputStream(fos);
+                        FileOutputStream fileOutputStream = new FileOutputStream(dir);
+                        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(fileOutputStream);
 
-                            bytesRead = clientSocket.getInputStream().read(aByte, 0, aByte.length);
+                        bytesRead = clientSocket.getInputStream().read(contents, 0, contents.length);
 
-                            do {
-                                baos.write(aByte);
-                                bytesRead = clientSocket.getInputStream().read(aByte);
-                            } while (bytesRead != -1);
+                        do {
+                            byteArrayOutputStream.write(contents);
+                            bytesRead = clientSocket.getInputStream().read(contents);
+                        } while (bytesRead != -1);
 
-                            bos.write(baos.toByteArray());
-                            bos.flush();
-                            bos.close();
-                            clientSocket.close();
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
+                        bufferedOutputStream.write(byteArrayOutputStream.toByteArray());
+                        bufferedOutputStream.flush();
+                        bufferedOutputStream.close();
+
+                        clientSocket.close();
+
+                        System.out.println(String.format("File saved successfully to %s!", Service.getInstance().getServer().getShareDirectory() + "/_" + result.getData()));
                         break;
                     case Client.SERVER_PULL_STRING:
-                        DataOutputStream outToServer = new DataOutputStream(clientSocket.getOutputStream());
                         BufferedReader inFromServer = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-
-                        outToServer.writeBytes(message + '\n');
-
                         output = inFromServer.readLine();
                         break;
                 }
 
                 clientSocket.close();
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 

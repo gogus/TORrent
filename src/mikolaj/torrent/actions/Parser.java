@@ -6,6 +6,8 @@
  */
 package mikolaj.torrent.actions;
 
+import mikolaj.torrent.utils.Logger;
+
 import java.util.*;
 
 public class Parser {
@@ -94,6 +96,20 @@ public class Parser {
                     paramsValues = this.parameterParseViaTraditional(paramsMap, arguments);
                     break;
             }
+        }
+
+        if (paramsValues != null) {
+            String toLog = getMainAction(arguments) + ": ";
+
+            Iterator it = paramsValues.entrySet().iterator();
+            while (it.hasNext()) {
+                Map.Entry pair = (Map.Entry)it.next();
+                toLog += pair.getKey() + "=" + pair.getValue();
+            }
+
+            Logger.getInstance().addToLog(toLog);
+        } else {
+            Logger.getInstance().addToLog(getMainAction(arguments));
         }
 
         return actionService.getAction(getMainAction(arguments)).perform(paramsValues);

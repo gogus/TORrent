@@ -27,14 +27,16 @@ public class Shares extends ActionAbstract {
     public HashMap<String, Boolean> getParams() {
         HashMap<String, Boolean> params = new HashMap<>();
         params.put("host", true);
+        params.put("port", true);
 
         return params;
     }
 
     public Result perform(HashMap<String, String> paramsMap) {
         String host = paramsMap.get("host");
+        String port = paramsMap.get("port");
 
-        Client client = new Client(host, Service.getInstance().getServer().getPort(), Client.SERVER_PULL_STRING);
+        Client client = new Client(host, new Integer(port), Client.SERVER_PULL_STRING);
 
         JSONArray jsonArray = new Result().fromJsonArray(client.sendMessage(this.getName()));
 

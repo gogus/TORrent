@@ -8,6 +8,7 @@ package mikolaj.torrent.communication.server;
 
 import mikolaj.torrent.actions.ActionAbstract;
 import mikolaj.torrent.actions.ActionService;
+import mikolaj.torrent.communication.server.actions.HttpLog;
 import mikolaj.torrent.communication.server.actions.Push;
 import mikolaj.torrent.communication.server.actions.Shares;
 
@@ -22,6 +23,7 @@ public class Service extends ActionService {
 
         commandsList.add(new Shares());
         commandsList.add(new Push());
+        commandsList.add(new HttpLog());
 
         return commandsList;
     }

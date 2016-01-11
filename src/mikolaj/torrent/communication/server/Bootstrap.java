@@ -61,18 +61,20 @@ public class Bootstrap {
         public void run() {
             try {
                 BufferedReader reader = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+
                 String command = reader.readLine();
 
-                Result result = new Parser(command, Service.getInstance(), Parser.PARAMETER_PARSER_TRADITIONAL).perform();
+                    Result result = new Parser(command, Service.getInstance(), Parser.PARAMETER_PARSER_TRADITIONAL).perform();
 
-                switch (result.getServerReturnType()) {
-                    case Bootstrap.SERVER_RETURN_STRING:
-                        stringSend(result);
-                        break;
-                    case Bootstrap.SERVER_RETURN_BYTE:
-                        byteSend(result);
-                        break;
-                }
+                    switch (result.getServerReturnType()) {
+                        case Bootstrap.SERVER_RETURN_STRING:
+                            stringSend(result);
+                            break;
+                        case Bootstrap.SERVER_RETURN_BYTE:
+                            byteSend(result);
+                            break;
+                    }
+
 
                 clientSocket.close();
             } catch (IOException e) {
@@ -97,13 +99,13 @@ public class Bootstrap {
                 File file = new File(Service.getInstance().getServer().getShareDirectory() + "/" + result.getData().toString().replace("__", " "));
                 byte[] byteArray = new byte[(int) file.length()];
 
-                FileInputStream fis;
+                FileInputStream fileInputStream;
 
                 try {
-                    fis = new FileInputStream(file);
+                    fileInputStream = new FileInputStream(file);
 
-                    BufferedInputStream bis = new BufferedInputStream(fis);
-                    bis.read(byteArray, 0, byteArray.length);
+                    BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
+                    bufferedInputStream.read(byteArray, 0, byteArray.length);
                     outToClient.write(byteArray, 0, byteArray.length);
                 } catch (FileNotFoundException ex) {
                     ex.printStackTrace();

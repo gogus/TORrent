@@ -26,6 +26,7 @@ public class Pull extends ActionAbstract {
         HashMap<String, Boolean> params = new HashMap<>();
 
         params.put("host", true);
+        params.put("port", true);
         params.put("fileName", true);
 
         return params;
@@ -33,9 +34,13 @@ public class Pull extends ActionAbstract {
 
     public Result perform(HashMap<String, String> paramsMap) {
         String host = paramsMap.get("host");
+        String port = paramsMap.get("port");
 
-        Client client = new Client(host, Service.getInstance().getServer().getPort(), Client.SERVER_PULL_BYTE);
+        Result result = new Result();
+        result.saveRaw(paramsMap.get("fileName"));
 
+        Client client = new Client(host, new Integer(port), Client.SERVER_PULL_BYTE);
+        client.setResult(result);
         client.sendMessage(
             String.format("%s %s=%s",
                     new mikolaj.torrent.communication.server.actions.Push().getName(),
