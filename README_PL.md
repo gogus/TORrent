@@ -12,7 +12,7 @@ Aplikacja działa domyślnie na porcie 10101.
 $ launch.sh [port] [sharingDirectory]
 ```
 
-### Available commands
+### Dostępne komendy
 * clients - Wykrycie uzytkownikow w sieci
 * pull - Pobranie pliku od uzytkownika
 * shares - Pobranie listy plikow od uzytkownika
