@@ -24,8 +24,8 @@ public class Bootstrap {
             return sharingDirectory;
         }
 
-        if (args.length == 3) {
-            sharingDirectory = args[2];
+        if (args.length == 2) {
+            sharingDirectory = args[1];
         } else {
             if (OperatingSystem.getOS() == OperatingSystem.OS.WINDOWS) {
                 sharingDirectory = "D:\\TORrent_" + ApplicationIdentifier.getIdentifier();
@@ -91,7 +91,7 @@ public class Bootstrap {
         System.out.println(String.format("%s v%s - Welcome!", APPLICATION_NAME, APPLICATION_VERSION));
 
         if (args.length == 2) {
-            runCommunicationPackage(new Integer(args[1]));
+            runCommunicationPackage(new Integer(args[0]));
         }
 
         getSharingDirectory(args);

@@ -9,7 +9,7 @@ TORrent to program pozwalający na wymianę plików w sieci lokalnej
 Aplikacja działa domyślnie na porcie 10101.
 
 ```sh
-$ torrent [port] [sharingDirectory]
+$ launch.sh [port] [sharingDirectory]
 ```
 
 ### Available commands

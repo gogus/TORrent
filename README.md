@@ -8,7 +8,7 @@ TORrent is local network system of file sharing.
 
 Application is working default on port 10101.
 ```sh
-$ torrent [port] [sharingDirectory]
+$ launch.sh [port] [sharingDirectory]
 ```
 
 ### Available commands
