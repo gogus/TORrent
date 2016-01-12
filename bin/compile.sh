@@ -1,0 +1,1 @@
+javac -d ./ -cp ../libs/json-simple-1.1.1.jar  $(find ../src/* | grep .java)

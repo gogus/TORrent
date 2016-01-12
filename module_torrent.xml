@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="module_torrent" default="compile.module.torrent">
+  <dirname property="module.torrent.basedir" file="${ant.file.module_torrent}"/>
+  
+  <property name="module.jdk.home.torrent" value="${project.jdk.home}"/>
+  <property name="module.jdk.bin.torrent" value="${project.jdk.bin}"/>
+  <property name="module.jdk.classpath.torrent" value="${project.jdk.classpath}"/>
+  
+  <property name="compiler.args.torrent" value="-encoding UTF-8 -source 8 -target 8 ${compiler.args}"/>
+  
+  <property name="torrent.output.dir" value="${module.torrent.basedir}/out/production/TORrent"/>
+  <property name="torrent.testoutput.dir" value="${module.torrent.basedir}/out/test/TORrent"/>
+  
+  <path id="torrent.module.bootclasspath">
+    <!-- Paths to be included in compilation bootclasspath -->
+  </path>
+  
+  <path id="torrent.module.production.classpath">
+    <path refid="${module.jdk.classpath.torrent}"/>
+    <path refid="library.com.googlecode.json-simple:json-simple:1.1.1.classpath"/>
+  </path>
+  
+  <path id="torrent.runtime.production.module.classpath">
+    <pathelement location="${torrent.output.dir}"/>
+    <path refid="library.com.googlecode.json-simple:json-simple:1.1.1.classpath"/>
+  </path>
+  
+  <path id="torrent.module.classpath">
+    <path refid="${module.jdk.classpath.torrent}"/>
+    <pathelement location="${torrent.output.dir}"/>
+    <path refid="library.com.googlecode.json-simple:json-simple:1.1.1.classpath"/>
+  </path>
+  
+  <path id="torrent.runtime.module.classpath">
+    <pathelement location="${torrent.testoutput.dir}"/>
+    <pathelement location="${torrent.output.dir}"/>
+    <path refid="library.com.googlecode.json-simple:json-simple:1.1.1.classpath"/>
+  </path>
+  
+  
+  <patternset id="excluded.from.module.torrent">
+    <patternset refid="ignored.files"/>
+  </patternset>
+  
+  <patternset id="excluded.from.compilation.torrent">
+    <patternset refid="excluded.from.module.torrent"/>
+  </patternset>
+  
+  <path id="torrent.module.sourcepath">
+    <dirset dir="${module.torrent.basedir}">
+      <include name="src"/>
+    </dirset>
+  </path>
+  
+  
+  <target name="compile.module.torrent" depends="compile.module.torrent.production,compile.module.torrent.tests" description="Compile module TORrent"/>
+  
+  <target name="compile.module.torrent.production" depends="register.custom.compilers" description="Compile module TORrent; production classes">
+    <mkdir dir="${torrent.output.dir}"/>
+    <javac2 destdir="${torrent.output.dir}" debug="${compiler.debug}" nowarn="${compiler.generate.no.warnings}" memorymaximumsize="${compiler.max.memory}" fork="true" executable="${module.jdk.bin.torrent}/javac">
+      <compilerarg line="${compiler.args.torrent}"/>
+      <bootclasspath refid="torrent.module.bootclasspath"/>
+      <classpath refid="torrent.module.production.classpath"/>
+      <src refid="torrent.module.sourcepath"/>
+      <patternset refid="excluded.from.compilation.torrent"/>
+    </javac2>
+    
+    <copy todir="${torrent.output.dir}">
+      <fileset dir="${module.torrent.basedir}/src">
+        <patternset refid="compiler.resources"/>
+        <type type="file"/>
+      </fileset>
+    </copy>
+  </target>
+  
+  <target name="compile.module.torrent.tests" depends="register.custom.compilers,compile.module.torrent.production" description="compile module TORrent; test classes" unless="skip.tests"/>
+  
+  <target name="clean.module.torrent" description="cleanup module">
+    <delete dir="${torrent.output.dir}"/>
+    <delete dir="${torrent.testoutput.dir}"/>
+  </target>
+</project>
